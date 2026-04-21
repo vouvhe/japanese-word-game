@@ -212,7 +212,7 @@
       <div><b>❤️ 라이프 3개</b>로 시작. 0 되면 게임 오버.</div>
       <div><b>3가지 문제</b>가 랜덤으로 출제됩니다:</div>
       <ul>
-        <li><b>타이핑</b>: 히라가나를 로마자로 입력 (+15점)</li>
+        <li><b>뜻 입력</b>: 단어의 한국어 뜻을 직접 타이핑 (+15점)</li>
         <li><b>뜻 맞추기</b>: 단어의 한국어 뜻 고르기 (+10점)</li>
         <li><b>한자 읽기</b>: 한자의 히라가나 읽기 고르기 (+10점)</li>
       </ul>
@@ -493,12 +493,12 @@ function nextQuestion() {
   const answerArea = document.getElementById('answer-area');
 
   if (type === 'typing') {
-    qType.textContent = '⌨️ 타이핑 (+15)';
-    qHint.textContent = '히라가나를 로마자로 입력하세요';
-    qWord.textContent = word.h;
+    qType.textContent = '⌨️ 뜻 입력 (+15)';
+    qHint.textContent = '이 단어의 뜻을 한글로 입력하세요';
+    qWord.textContent = `${word.k}（${word.h}）`;
     answerArea.innerHTML = `
       <div class="input-area">
-        <input id="ans-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="romaji...">
+        <input id="ans-input" type="text" autocomplete="off" spellcheck="false" placeholder="한국어 뜻...">
         <button onclick="submitTyping()">확인</button>
       </div>`;
     const inp = document.getElementById('ans-input');
@@ -523,14 +523,19 @@ function nextQuestion() {
   }
 }
 
+function normalizeKo(s) {
+  return s.trim().toLowerCase().replace(/[,\s.·・、,]/g, '');
+}
 function submitTyping() {
   if (state.locked) return;
   const input = document.getElementById('ans-input');
-  const val = input.value.trim().toLowerCase();
-  if (!val) return;
-  const accept = acceptableRomaji(state.current.h);
-  const correct = accept.has(val);
-  handleAnswer(correct, val, toRomaji(state.current.h), 15);
+  const val = input.value;
+  if (!val.trim()) return;
+  const user = normalizeKo(val);
+  // accept any comma-separated alternative in the meaning
+  const answers = state.current.m.split(/[,、]/).map(normalizeKo);
+  const correct = answers.includes(user);
+  handleAnswer(correct, val.trim(), state.current.m, 15);
 }
 
 function submitChoice(btn, picked, correctAns) {
