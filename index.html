@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>日本語チャレンジ - 일본어 단어 게임</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,10 +22,10 @@
   }
   .game {
     width: 100%;
-    max-width: 560px;
+    max-width: 620px;
     background: #242424;
     border-radius: 16px;
-    padding: 32px;
+    padding: 28px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     border: 1px solid #333;
   }
@@ -36,17 +37,12 @@
     padding-bottom: 16px;
     border-bottom: 1px solid #333;
   }
-  .title {
-    font-size: 1.2rem;
-    color: #e63946;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-  .stats { display: flex; gap: 16px; font-size: 0.9rem; }
+  .title { font-size: 1.1rem; color: #e63946; font-weight: 700; letter-spacing: 1px; }
+  .stats { display: flex; gap: 14px; font-size: 0.9rem; }
   .stat { display: flex; flex-direction: column; align-items: center; }
   .stat .label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-  .stat .value { font-size: 1.1rem; font-weight: 700; }
-  .lives { font-size: 1.1rem; letter-spacing: 1px; }
+  .stat .value { font-size: 1.05rem; font-weight: 700; }
+  .lives { font-size: 1rem; letter-spacing: 1px; }
   .combo.active .value { color: #ffb703; }
   .question-type {
     display: inline-block;
@@ -75,55 +71,26 @@
   }
   .question-card.correct { border-color: #2dd4bf; background: rgba(45, 212, 191, 0.08); }
   .question-card.wrong { border-color: #e63946; background: rgba(230, 57, 70, 0.08); }
-  .question-word {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #fff;
-    line-height: 1.2;
-  }
-  .question-hint {
-    font-size: 1rem;
-    color: #888;
-    margin-bottom: 8px;
-  }
+  .question-word { font-size: 2.8rem; font-weight: 700; margin-bottom: 12px; color: #fff; line-height: 1.2; }
+  .question-hint { font-size: 0.95rem; color: #888; margin-bottom: 8px; }
   .input-area { display: flex; gap: 8px; }
   .input-area input {
-    flex: 1;
-    padding: 14px 16px;
-    font-size: 1.1rem;
-    background: #1a1a1a;
-    border: 2px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    outline: none;
-    font-family: inherit;
+    flex: 1; padding: 14px 16px; font-size: 1.1rem;
+    background: #1a1a1a; border: 2px solid #333; border-radius: 8px;
+    color: #fff; outline: none; font-family: inherit;
   }
   .input-area input:focus { border-color: #e63946; }
   .input-area button {
-    padding: 14px 24px;
-    background: #e63946;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.1s, background 0.2s;
+    padding: 14px 24px; background: #e63946; color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem;
+    font-weight: 700; cursor: pointer; transition: all 0.1s;
   }
   .input-area button:hover { background: #c1121f; }
-  .input-area button:active { transform: scale(0.97); }
   .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .choice {
-    padding: 16px;
-    background: #1a1a1a;
-    border: 2px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1.05rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
+    padding: 16px; background: #1a1a1a; border: 2px solid #333;
+    border-radius: 8px; color: #fff; font-size: 1.05rem;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
     text-align: center;
   }
   .choice:hover:not(:disabled) { border-color: #e63946; background: #2a2a2a; }
@@ -131,13 +98,8 @@
   .choice.correct { border-color: #2dd4bf; background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
   .choice.wrong { border-color: #e63946; background: rgba(230, 57, 70, 0.15); color: #e63946; }
   .feedback {
-    min-height: 48px;
-    text-align: center;
-    font-size: 0.95rem;
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 8px;
-    display: none;
+    min-height: 48px; text-align: center; font-size: 0.95rem;
+    margin-top: 12px; padding: 12px; border-radius: 8px; display: none;
   }
   .feedback.show { display: block; }
   .feedback.correct { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; }
@@ -145,94 +107,62 @@
   .feedback b { color: #fff; }
   .screen { display: none; }
   .screen.active { display: block; }
-  .start-screen, .end-screen { text-align: center; padding: 20px 0; }
+  .start-screen, .end-screen { text-align: center; padding: 10px 0; }
   .big-title {
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 8px;
+    font-size: 2.2rem; font-weight: 900; margin-bottom: 6px;
     background: linear-gradient(135deg, #e63946, #ff6b7a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .subtitle { color: #888; margin-bottom: 24px; font-size: 0.95rem; }
+  .subtitle { color: #888; margin-bottom: 22px; font-size: 0.92rem; }
   .rules {
-    text-align: left;
-    background: #1a1a1a;
-    padding: 18px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    font-size: 0.88rem;
-    line-height: 1.7;
-    color: #ccc;
+    text-align: left; background: #1a1a1a; padding: 16px 18px;
+    border-radius: 12px; margin-bottom: 18px; font-size: 0.85rem;
+    line-height: 1.7; color: #ccc;
   }
   .rules li { margin-left: 18px; }
   .rules b { color: #e63946; }
   .category-picker {
-    text-align: left;
-    background: #1a1a1a;
-    padding: 18px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    text-align: left; background: #1a1a1a; padding: 16px;
+    border-radius: 12px; margin-bottom: 18px;
   }
   .category-label {
-    font-size: 0.85rem;
-    color: #888;
-    margin-bottom: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 0.85rem; color: #ccc; margin-bottom: 12px;
+    font-weight: 700; letter-spacing: 0.5px;
   }
   .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
     gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
   }
+  .category-grid::-webkit-scrollbar { width: 6px; }
+  .category-grid::-webkit-scrollbar-track { background: #222; border-radius: 3px; }
+  .category-grid::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
   .cat-btn {
-    padding: 10px 8px;
-    background: #242424;
-    border: 2px solid #333;
-    border-radius: 8px;
-    color: #ccc;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    text-align: center;
+    padding: 10px 6px; background: #242424; border: 2px solid #333;
+    border-radius: 8px; color: #ccc; font-size: 0.88rem;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+    text-align: center; line-height: 1.3;
   }
   .cat-btn:hover { border-color: #555; color: #fff; }
   .cat-btn.active {
-    border-color: #e63946;
-    background: rgba(230, 57, 70, 0.15);
-    color: #ff6b7a;
-    font-weight: 700;
+    border-color: #e63946; background: rgba(230, 57, 70, 0.15);
+    color: #ff6b7a; font-weight: 700;
   }
-  .cat-btn .count {
-    display: block;
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 2px;
-  }
+  .cat-btn .count { display: block; font-size: 0.7rem; color: #666; margin-top: 2px; }
   .cat-btn.active .count { color: #e63946; }
   .primary-btn {
-    padding: 16px 48px;
-    background: #e63946;
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 1px;
+    padding: 14px 42px; background: #e63946; color: #fff;
+    border: none; border-radius: 999px; font-size: 1rem;
+    font-weight: 700; cursor: pointer; letter-spacing: 1px;
     transition: all 0.2s;
   }
   .primary-btn:hover { background: #c1121f; transform: translateY(-2px); }
-  .final-score {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #e63946;
-    margin: 8px 0;
-  }
-  .record { color: #ffb703; font-size: 0.95rem; margin-bottom: 20px; }
+  .final-score { font-size: 3rem; font-weight: 900; color: #e63946; margin: 8px 0; }
+  .record { color: #ffb703; font-size: 0.9rem; margin-bottom: 16px; }
   .record .new { font-weight: 700; animation: pulse 1s infinite; }
   @keyframes pulse { 50% { opacity: 0.5; } }
   @keyframes shake {
@@ -249,26 +179,26 @@
   <!-- START -->
   <div id="start-screen" class="screen active start-screen">
     <div class="big-title">日本語チャレンジ</div>
-    <div class="subtitle">JLPT N5~N4 일본어 단어 게임</div>
+    <div class="subtitle">JLPT N5~N4 일본어 단어 게임 · <span id="total-count">0</span>단어</div>
 
     <div class="category-picker">
-      <div class="category-label">📚 공부할 카테고리</div>
+      <div class="category-label">📚 공부할 카테고리를 선택하세요</div>
       <div class="category-grid" id="category-grid"></div>
     </div>
 
     <div class="rules">
-      <div><b>❤️ 라이프 5개</b>로 시작. 0 되면 게임 오버.</div>
-      <div><b>3가지 문제</b> 랜덤 출제:</div>
+      <div><b>❤️ 라이프 5개</b> — 0이 되면 게임 오버</div>
+      <div>문제 유형 (랜덤):</div>
       <ul>
-        <li><b>뜻 맞추기</b>: 4지선다 (+10점)</li>
-        <li><b>한자 읽기</b>: 4지선다 (+10점)</li>
-        <li><b>뜻 입력</b>: 한국어 뜻 타이핑 (+15점)</li>
+        <li><b>뜻 맞추기</b> 4지선다 (+10)</li>
+        <li><b>한자 읽기</b> 4지선다 (+10)</li>
+        <li><b>뜻 입력</b> 한국어 타이핑 (+15)</li>
       </ul>
       <div><b>🔥 3 콤보</b>마다 +20점 보너스!</div>
     </div>
 
     <button class="primary-btn" onclick="startGame()">게임 시작</button>
-    <div id="best-record" class="record" style="margin-top:20px;"></div>
+    <div id="best-record" class="record" style="margin-top:18px;"></div>
   </div>
 
   <!-- GAME -->
@@ -290,6 +220,10 @@
 
     <div id="answer-area"></div>
     <div id="feedback" class="feedback"></div>
+
+    <div style="text-align:center; margin-top:16px;">
+      <button onclick="backToStart()" style="background:none; border:none; color:#666; cursor:pointer; font-size:0.8rem; text-decoration:underline;">← 카테고리 변경</button>
+    </div>
   </div>
 
   <!-- END -->
@@ -300,7 +234,7 @@
     <div id="final-score" class="final-score">0</div>
     <div id="final-record" class="record"></div>
     <div>맞힌 문제: <b id="final-correct">0</b> / <span id="final-total">0</span></div>
-    <div style="margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+    <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
       <button class="primary-btn" onclick="startGame()">다시 도전</button>
       <button class="primary-btn" style="background:#444;" onclick="backToStart()">카테고리 변경</button>
     </div>
@@ -311,22 +245,49 @@
 <script>
 // ===== Categories =====
 const CATEGORIES = [
-  { id: 'all',    label: '전체' },
-  { id: 'number', label: '숫자' },
-  { id: 'time',   label: '시간·날짜' },
-  { id: 'verb',   label: '동사' },
-  { id: 'adj',    label: '형용사' },
-  { id: 'family', label: '가족' },
-  { id: 'place',  label: '장소' },
-  { id: 'food',   label: '음식' },
-  { id: 'body',   label: '신체' },
-  { id: 'greet',  label: '인사·기본' }
+  { id: 'all',       label: '🌟 전체' },
+  { id: 'greet',     label: '👋 인사·기본' },
+  { id: 'number',    label: '🔢 숫자·수량' },
+  { id: 'time',      label: '🕐 시간·날짜' },
+  { id: 'verb',      label: '🏃 동사' },
+  { id: 'iadj',      label: '✨ い형용사' },
+  { id: 'naadj',     label: '💡 な형용사' },
+  { id: 'adv',       label: '💬 부사' },
+  { id: 'family',    label: '👨‍👩‍👧 가족·사람' },
+  { id: 'body',      label: '🙆 신체' },
+  { id: 'feeling',   label: '😊 감정·상태' },
+  { id: 'food',      label: '🍱 음식' },
+  { id: 'place',     label: '🏢 장소·건물' },
+  { id: 'transport', label: '🚆 교통' },
+  { id: 'daily',     label: '🛍 생활·물건' },
+  { id: 'school',    label: '📖 학교·공부' },
+  { id: 'job',       label: '💼 직업' },
+  { id: 'nature',    label: '🌸 자연·계절' },
+  { id: 'animal',    label: '🐶 동물' },
+  { id: 'color',     label: '🎨 색깔' }
 ];
 
 // ===== Word Data (JLPT N5~N4) =====
-// k: kanji form, h: hiragana reading, m: korean meaning, cat: category
 const WORDS = [
-  // --- numbers ---
+  // --- 👋 인사·기본 ---
+  {k:'おはよう', h:'おはよう', m:'좋은 아침', cat:'greet'},
+  {k:'こんにちは', h:'こんにちは', m:'안녕하세요', cat:'greet'},
+  {k:'こんばんは', h:'こんばんは', m:'안녕하세요(저녁)', cat:'greet'},
+  {k:'おやすみ', h:'おやすみ', m:'잘 자요', cat:'greet'},
+  {k:'さようなら', h:'さようなら', m:'안녕히 가세요', cat:'greet'},
+  {k:'ありがとう', h:'ありがとう', m:'고맙다', cat:'greet'},
+  {k:'すみません', h:'すみません', m:'죄송하다,실례합니다', cat:'greet'},
+  {k:'ごめんなさい', h:'ごめんなさい', m:'미안합니다', cat:'greet'},
+  {k:'はい', h:'はい', m:'네,예', cat:'greet'},
+  {k:'いいえ', h:'いいえ', m:'아니요', cat:'greet'},
+  {k:'お願い', h:'おねがい', m:'부탁', cat:'greet'},
+  {k:'大丈夫', h:'だいじょうぶ', m:'괜찮다', cat:'greet'},
+  {k:'初めまして', h:'はじめまして', m:'처음 뵙겠습니다', cat:'greet'},
+  {k:'いただきます', h:'いただきます', m:'잘 먹겠습니다', cat:'greet'},
+  {k:'ごちそうさま', h:'ごちそうさま', m:'잘 먹었습니다', cat:'greet'},
+  {k:'名前', h:'なまえ', m:'이름', cat:'greet'},
+
+  // --- 🔢 숫자·수량 ---
   {k:'一', h:'いち', m:'일,하나', cat:'number'},
   {k:'二', h:'に', m:'이,둘', cat:'number'},
   {k:'三', h:'さん', m:'삼,셋', cat:'number'},
@@ -340,17 +301,30 @@ const WORDS = [
   {k:'百', h:'ひゃく', m:'백', cat:'number'},
   {k:'千', h:'せん', m:'천', cat:'number'},
   {k:'万', h:'まん', m:'만', cat:'number'},
-  {k:'円', h:'えん', m:'엔,일본 화폐', cat:'number'},
+  {k:'零', h:'れい', m:'영,0', cat:'number'},
+  {k:'円', h:'えん', m:'엔(화폐)', cat:'number'},
   {k:'番号', h:'ばんごう', m:'번호', cat:'number'},
+  {k:'半分', h:'はんぶん', m:'반,절반', cat:'number'},
+  {k:'全部', h:'ぜんぶ', m:'전부', cat:'number'},
+  {k:'一つ', h:'ひとつ', m:'하나', cat:'number'},
+  {k:'二つ', h:'ふたつ', m:'둘', cat:'number'},
+  {k:'三つ', h:'みっつ', m:'셋', cat:'number'},
+  {k:'四つ', h:'よっつ', m:'넷', cat:'number'},
+  {k:'五つ', h:'いつつ', m:'다섯', cat:'number'},
+  {k:'一人', h:'ひとり', m:'한 명,혼자', cat:'number'},
+  {k:'二人', h:'ふたり', m:'두 명', cat:'number'},
 
-  // --- time ---
+  // --- 🕐 시간·날짜 ---
   {k:'今日', h:'きょう', m:'오늘', cat:'time'},
   {k:'明日', h:'あした', m:'내일', cat:'time'},
   {k:'昨日', h:'きのう', m:'어제', cat:'time'},
+  {k:'明後日', h:'あさって', m:'모레', cat:'time'},
+  {k:'一昨日', h:'おととい', m:'그저께', cat:'time'},
   {k:'今', h:'いま', m:'지금', cat:'time'},
   {k:'朝', h:'あさ', m:'아침', cat:'time'},
   {k:'昼', h:'ひる', m:'낮,점심', cat:'time'},
   {k:'夜', h:'よる', m:'밤', cat:'time'},
+  {k:'夕方', h:'ゆうがた', m:'저녁', cat:'time'},
   {k:'午前', h:'ごぜん', m:'오전', cat:'time'},
   {k:'午後', h:'ごご', m:'오후', cat:'time'},
   {k:'時間', h:'じかん', m:'시간', cat:'time'},
@@ -359,6 +333,13 @@ const WORDS = [
   {k:'先週', h:'せんしゅう', m:'지난 주', cat:'time'},
   {k:'今月', h:'こんげつ', m:'이번 달', cat:'time'},
   {k:'来月', h:'らいげつ', m:'다음 달', cat:'time'},
+  {k:'先月', h:'せんげつ', m:'지난 달', cat:'time'},
+  {k:'今年', h:'ことし', m:'올해', cat:'time'},
+  {k:'来年', h:'らいねん', m:'내년', cat:'time'},
+  {k:'去年', h:'きょねん', m:'작년', cat:'time'},
+  {k:'毎日', h:'まいにち', m:'매일', cat:'time'},
+  {k:'毎週', h:'まいしゅう', m:'매주', cat:'time'},
+  {k:'毎月', h:'まいつき', m:'매달', cat:'time'},
   {k:'月曜日', h:'げつようび', m:'월요일', cat:'time'},
   {k:'火曜日', h:'かようび', m:'화요일', cat:'time'},
   {k:'水曜日', h:'すいようび', m:'수요일', cat:'time'},
@@ -366,12 +347,13 @@ const WORDS = [
   {k:'金曜日', h:'きんようび', m:'금요일', cat:'time'},
   {k:'土曜日', h:'どようび', m:'토요일', cat:'time'},
   {k:'日曜日', h:'にちようび', m:'일요일', cat:'time'},
+  {k:'週末', h:'しゅうまつ', m:'주말', cat:'time'},
 
-  // --- verbs ---
+  // --- 🏃 동사 ---
   {k:'食べる', h:'たべる', m:'먹다', cat:'verb'},
   {k:'飲む', h:'のむ', m:'마시다', cat:'verb'},
   {k:'見る', h:'みる', m:'보다', cat:'verb'},
-  {k:'聞く', h:'きく', m:'듣다', cat:'verb'},
+  {k:'聞く', h:'きく', m:'듣다,묻다', cat:'verb'},
   {k:'書く', h:'かく', m:'쓰다', cat:'verb'},
   {k:'読む', h:'よむ', m:'읽다', cat:'verb'},
   {k:'話す', h:'はなす', m:'말하다', cat:'verb'},
@@ -390,31 +372,123 @@ const WORDS = [
   {k:'作る', h:'つくる', m:'만들다', cat:'verb'},
   {k:'遊ぶ', h:'あそぶ', m:'놀다', cat:'verb'},
   {k:'歩く', h:'あるく', m:'걷다', cat:'verb'},
+  {k:'走る', h:'はしる', m:'달리다', cat:'verb'},
+  {k:'泳ぐ', h:'およぐ', m:'헤엄치다', cat:'verb'},
+  {k:'入る', h:'はいる', m:'들어가다', cat:'verb'},
+  {k:'出る', h:'でる', m:'나가다', cat:'verb'},
+  {k:'乗る', h:'のる', m:'타다', cat:'verb'},
+  {k:'降りる', h:'おりる', m:'내리다', cat:'verb'},
+  {k:'使う', h:'つかう', m:'사용하다', cat:'verb'},
+  {k:'取る', h:'とる', m:'잡다,취하다', cat:'verb'},
+  {k:'持つ', h:'もつ', m:'들다,가지다', cat:'verb'},
+  {k:'貸す', h:'かす', m:'빌려주다', cat:'verb'},
+  {k:'借りる', h:'かりる', m:'빌리다', cat:'verb'},
+  {k:'渡す', h:'わたす', m:'건네다', cat:'verb'},
+  {k:'始める', h:'はじめる', m:'시작하다', cat:'verb'},
+  {k:'終わる', h:'おわる', m:'끝나다', cat:'verb'},
+  {k:'教える', h:'おしえる', m:'가르치다', cat:'verb'},
+  {k:'習う', h:'ならう', m:'배우다', cat:'verb'},
+  {k:'覚える', h:'おぼえる', m:'외우다', cat:'verb'},
+  {k:'忘れる', h:'わすれる', m:'잊다', cat:'verb'},
+  {k:'分かる', h:'わかる', m:'알다,이해하다', cat:'verb'},
+  {k:'知る', h:'しる', m:'알다', cat:'verb'},
+  {k:'思う', h:'おもう', m:'생각하다', cat:'verb'},
+  {k:'考える', h:'かんがえる', m:'생각하다,고려하다', cat:'verb'},
+  {k:'歌う', h:'うたう', m:'노래하다', cat:'verb'},
+  {k:'踊る', h:'おどる', m:'춤추다', cat:'verb'},
+  {k:'笑う', h:'わらう', m:'웃다', cat:'verb'},
+  {k:'泣く', h:'なく', m:'울다', cat:'verb'},
+  {k:'死ぬ', h:'しぬ', m:'죽다', cat:'verb'},
+  {k:'生きる', h:'いきる', m:'살다', cat:'verb'},
+  {k:'開ける', h:'あける', m:'열다', cat:'verb'},
+  {k:'閉める', h:'しめる', m:'닫다', cat:'verb'},
+  {k:'着る', h:'きる', m:'입다', cat:'verb'},
+  {k:'脱ぐ', h:'ぬぐ', m:'벗다', cat:'verb'},
+  {k:'切る', h:'きる', m:'자르다', cat:'verb'},
 
-  // --- adjectives ---
-  {k:'大きい', h:'おおきい', m:'크다', cat:'adj'},
-  {k:'小さい', h:'ちいさい', m:'작다', cat:'adj'},
-  {k:'高い', h:'たかい', m:'높다,비싸다', cat:'adj'},
-  {k:'安い', h:'やすい', m:'싸다', cat:'adj'},
-  {k:'新しい', h:'あたらしい', m:'새롭다', cat:'adj'},
-  {k:'古い', h:'ふるい', m:'오래되다', cat:'adj'},
-  {k:'良い', h:'よい', m:'좋다', cat:'adj'},
-  {k:'悪い', h:'わるい', m:'나쁘다', cat:'adj'},
-  {k:'暑い', h:'あつい', m:'덥다', cat:'adj'},
-  {k:'寒い', h:'さむい', m:'춥다', cat:'adj'},
-  {k:'冷たい', h:'つめたい', m:'차갑다', cat:'adj'},
-  {k:'面白い', h:'おもしろい', m:'재미있다', cat:'adj'},
-  {k:'楽しい', h:'たのしい', m:'즐겁다', cat:'adj'},
-  {k:'難しい', h:'むずかしい', m:'어렵다', cat:'adj'},
-  {k:'優しい', h:'やさしい', m:'상냥하다', cat:'adj'},
-  {k:'長い', h:'ながい', m:'길다', cat:'adj'},
-  {k:'短い', h:'みじかい', m:'짧다', cat:'adj'},
-  {k:'速い', h:'はやい', m:'빠르다', cat:'adj'},
-  {k:'遅い', h:'おそい', m:'느리다', cat:'adj'},
-  {k:'多い', h:'おおい', m:'많다', cat:'adj'},
-  {k:'少ない', h:'すくない', m:'적다', cat:'adj'},
+  // --- ✨ い형용사 ---
+  {k:'大きい', h:'おおきい', m:'크다', cat:'iadj'},
+  {k:'小さい', h:'ちいさい', m:'작다', cat:'iadj'},
+  {k:'高い', h:'たかい', m:'높다,비싸다', cat:'iadj'},
+  {k:'安い', h:'やすい', m:'싸다', cat:'iadj'},
+  {k:'低い', h:'ひくい', m:'낮다', cat:'iadj'},
+  {k:'新しい', h:'あたらしい', m:'새롭다', cat:'iadj'},
+  {k:'古い', h:'ふるい', m:'오래되다', cat:'iadj'},
+  {k:'良い', h:'よい', m:'좋다', cat:'iadj'},
+  {k:'悪い', h:'わるい', m:'나쁘다', cat:'iadj'},
+  {k:'暑い', h:'あつい', m:'덥다', cat:'iadj'},
+  {k:'寒い', h:'さむい', m:'춥다', cat:'iadj'},
+  {k:'熱い', h:'あつい', m:'뜨겁다', cat:'iadj'},
+  {k:'冷たい', h:'つめたい', m:'차갑다', cat:'iadj'},
+  {k:'暖かい', h:'あたたかい', m:'따뜻하다', cat:'iadj'},
+  {k:'涼しい', h:'すずしい', m:'시원하다', cat:'iadj'},
+  {k:'面白い', h:'おもしろい', m:'재미있다', cat:'iadj'},
+  {k:'楽しい', h:'たのしい', m:'즐겁다', cat:'iadj'},
+  {k:'難しい', h:'むずかしい', m:'어렵다', cat:'iadj'},
+  {k:'優しい', h:'やさしい', m:'상냥하다,쉽다', cat:'iadj'},
+  {k:'長い', h:'ながい', m:'길다', cat:'iadj'},
+  {k:'短い', h:'みじかい', m:'짧다', cat:'iadj'},
+  {k:'速い', h:'はやい', m:'빠르다', cat:'iadj'},
+  {k:'遅い', h:'おそい', m:'느리다,늦다', cat:'iadj'},
+  {k:'多い', h:'おおい', m:'많다', cat:'iadj'},
+  {k:'少ない', h:'すくない', m:'적다', cat:'iadj'},
+  {k:'重い', h:'おもい', m:'무겁다', cat:'iadj'},
+  {k:'軽い', h:'かるい', m:'가볍다', cat:'iadj'},
+  {k:'強い', h:'つよい', m:'강하다', cat:'iadj'},
+  {k:'弱い', h:'よわい', m:'약하다', cat:'iadj'},
+  {k:'忙しい', h:'いそがしい', m:'바쁘다', cat:'iadj'},
+  {k:'明るい', h:'あかるい', m:'밝다', cat:'iadj'},
+  {k:'暗い', h:'くらい', m:'어둡다', cat:'iadj'},
+  {k:'広い', h:'ひろい', m:'넓다', cat:'iadj'},
+  {k:'狭い', h:'せまい', m:'좁다', cat:'iadj'},
 
-  // --- family ---
+  // --- 💡 な형용사 ---
+  {k:'静か', h:'しずか', m:'조용함', cat:'naadj'},
+  {k:'有名', h:'ゆうめい', m:'유명함', cat:'naadj'},
+  {k:'親切', h:'しんせつ', m:'친절함', cat:'naadj'},
+  {k:'便利', h:'べんり', m:'편리함', cat:'naadj'},
+  {k:'不便', h:'ふべん', m:'불편함', cat:'naadj'},
+  {k:'大切', h:'たいせつ', m:'소중함', cat:'naadj'},
+  {k:'特別', h:'とくべつ', m:'특별함', cat:'naadj'},
+  {k:'元気', h:'げんき', m:'건강함,활발함', cat:'naadj'},
+  {k:'暇', h:'ひま', m:'한가함', cat:'naadj'},
+  {k:'簡単', h:'かんたん', m:'간단함', cat:'naadj'},
+  {k:'複雑', h:'ふくざつ', m:'복잡함', cat:'naadj'},
+  {k:'安全', h:'あんぜん', m:'안전함', cat:'naadj'},
+  {k:'危険', h:'きけん', m:'위험함', cat:'naadj'},
+  {k:'綺麗', h:'きれい', m:'예쁨,깨끗함', cat:'naadj'},
+  {k:'好き', h:'すき', m:'좋아함', cat:'naadj'},
+  {k:'嫌い', h:'きらい', m:'싫어함', cat:'naadj'},
+  {k:'上手', h:'じょうず', m:'잘함,능숙함', cat:'naadj'},
+  {k:'下手', h:'へた', m:'못함,서투름', cat:'naadj'},
+  {k:'色々', h:'いろいろ', m:'여러 가지', cat:'naadj'},
+  {k:'同じ', h:'おなじ', m:'같음', cat:'naadj'},
+  {k:'素敵', h:'すてき', m:'멋짐', cat:'naadj'},
+  {k:'丈夫', h:'じょうぶ', m:'튼튼함', cat:'naadj'},
+
+  // --- 💬 부사 ---
+  {k:'とても', h:'とても', m:'매우', cat:'adv'},
+  {k:'少し', h:'すこし', m:'조금', cat:'adv'},
+  {k:'たくさん', h:'たくさん', m:'많이', cat:'adv'},
+  {k:'ちょっと', h:'ちょっと', m:'좀,약간', cat:'adv'},
+  {k:'もう', h:'もう', m:'이미,벌써', cat:'adv'},
+  {k:'まだ', h:'まだ', m:'아직', cat:'adv'},
+  {k:'よく', h:'よく', m:'자주,잘', cat:'adv'},
+  {k:'あまり', h:'あまり', m:'그다지,별로', cat:'adv'},
+  {k:'全然', h:'ぜんぜん', m:'전혀', cat:'adv'},
+  {k:'いつも', h:'いつも', m:'언제나', cat:'adv'},
+  {k:'時々', h:'ときどき', m:'가끔', cat:'adv'},
+  {k:'多分', h:'たぶん', m:'아마', cat:'adv'},
+  {k:'本当', h:'ほんとう', m:'정말,진짜', cat:'adv'},
+  {k:'一緒', h:'いっしょ', m:'함께,같이', cat:'adv'},
+  {k:'すぐ', h:'すぐ', m:'곧,바로', cat:'adv'},
+  {k:'ゆっくり', h:'ゆっくり', m:'천천히', cat:'adv'},
+  {k:'早く', h:'はやく', m:'빨리', cat:'adv'},
+  {k:'また', h:'また', m:'또,다시', cat:'adv'},
+  {k:'もっと', h:'もっと', m:'더', cat:'adv'},
+  {k:'ぜひ', h:'ぜひ', m:'꼭,반드시', cat:'adv'},
+
+  // --- 👨‍👩‍👧 가족·사람 ---
   {k:'父', h:'ちち', m:'아버지', cat:'family'},
   {k:'母', h:'はは', m:'어머니', cat:'family'},
   {k:'兄', h:'あに', m:'형,오빠', cat:'family'},
@@ -427,8 +501,88 @@ const WORDS = [
   {k:'友達', h:'ともだち', m:'친구', cat:'family'},
   {k:'祖父', h:'そふ', m:'할아버지', cat:'family'},
   {k:'祖母', h:'そぼ', m:'할머니', cat:'family'},
+  {k:'主人', h:'しゅじん', m:'남편', cat:'family'},
+  {k:'妻', h:'つま', m:'아내', cat:'family'},
+  {k:'息子', h:'むすこ', m:'아들', cat:'family'},
+  {k:'娘', h:'むすめ', m:'딸', cat:'family'},
+  {k:'人', h:'ひと', m:'사람', cat:'family'},
+  {k:'男', h:'おとこ', m:'남자', cat:'family'},
+  {k:'女', h:'おんな', m:'여자', cat:'family'},
+  {k:'赤ちゃん', h:'あかちゃん', m:'아기', cat:'family'},
 
-  // --- place ---
+  // --- 🙆 신체 ---
+  {k:'目', h:'め', m:'눈', cat:'body'},
+  {k:'耳', h:'みみ', m:'귀', cat:'body'},
+  {k:'口', h:'くち', m:'입', cat:'body'},
+  {k:'鼻', h:'はな', m:'코', cat:'body'},
+  {k:'手', h:'て', m:'손', cat:'body'},
+  {k:'足', h:'あし', m:'발,다리', cat:'body'},
+  {k:'頭', h:'あたま', m:'머리', cat:'body'},
+  {k:'顔', h:'かお', m:'얼굴', cat:'body'},
+  {k:'体', h:'からだ', m:'몸', cat:'body'},
+  {k:'歯', h:'は', m:'이,치아', cat:'body'},
+  {k:'髪', h:'かみ', m:'머리카락', cat:'body'},
+  {k:'指', h:'ゆび', m:'손가락', cat:'body'},
+  {k:'首', h:'くび', m:'목', cat:'body'},
+  {k:'背中', h:'せなか', m:'등', cat:'body'},
+  {k:'肩', h:'かた', m:'어깨', cat:'body'},
+  {k:'心', h:'こころ', m:'마음', cat:'body'},
+
+  // --- 😊 감정·상태 ---
+  {k:'嬉しい', h:'うれしい', m:'기쁘다', cat:'feeling'},
+  {k:'悲しい', h:'かなしい', m:'슬프다', cat:'feeling'},
+  {k:'怖い', h:'こわい', m:'무섭다', cat:'feeling'},
+  {k:'寂しい', h:'さびしい', m:'외롭다', cat:'feeling'},
+  {k:'恥ずかしい', h:'はずかしい', m:'부끄럽다', cat:'feeling'},
+  {k:'痛い', h:'いたい', m:'아프다', cat:'feeling'},
+  {k:'眠い', h:'ねむい', m:'졸리다', cat:'feeling'},
+  {k:'疲れる', h:'つかれる', m:'피곤하다', cat:'feeling'},
+  {k:'心配', h:'しんぱい', m:'걱정', cat:'feeling'},
+  {k:'安心', h:'あんしん', m:'안심', cat:'feeling'},
+  {k:'気持ち', h:'きもち', m:'기분', cat:'feeling'},
+  {k:'楽しみ', h:'たのしみ', m:'기대,즐거움', cat:'feeling'},
+  {k:'怒る', h:'おこる', m:'화내다', cat:'feeling'},
+  {k:'驚く', h:'おどろく', m:'놀라다', cat:'feeling'},
+  {k:'愛', h:'あい', m:'사랑', cat:'feeling'},
+  {k:'夢', h:'ゆめ', m:'꿈', cat:'feeling'},
+  {k:'希望', h:'きぼう', m:'희망', cat:'feeling'},
+  {k:'感謝', h:'かんしゃ', m:'감사', cat:'feeling'},
+
+  // --- 🍱 음식 ---
+  {k:'ご飯', h:'ごはん', m:'밥', cat:'food'},
+  {k:'水', h:'みず', m:'물', cat:'food'},
+  {k:'お茶', h:'おちゃ', m:'차', cat:'food'},
+  {k:'コーヒー', h:'コーヒー', m:'커피', cat:'food'},
+  {k:'ジュース', h:'ジュース', m:'주스', cat:'food'},
+  {k:'肉', h:'にく', m:'고기', cat:'food'},
+  {k:'魚', h:'さかな', m:'생선,물고기', cat:'food'},
+  {k:'野菜', h:'やさい', m:'야채', cat:'food'},
+  {k:'果物', h:'くだもの', m:'과일', cat:'food'},
+  {k:'牛乳', h:'ぎゅうにゅう', m:'우유', cat:'food'},
+  {k:'卵', h:'たまご', m:'계란', cat:'food'},
+  {k:'砂糖', h:'さとう', m:'설탕', cat:'food'},
+  {k:'塩', h:'しお', m:'소금', cat:'food'},
+  {k:'パン', h:'パン', m:'빵', cat:'food'},
+  {k:'お酒', h:'おさけ', m:'술', cat:'food'},
+  {k:'弁当', h:'べんとう', m:'도시락', cat:'food'},
+  {k:'お菓子', h:'おかし', m:'과자', cat:'food'},
+  {k:'りんご', h:'りんご', m:'사과', cat:'food'},
+  {k:'みかん', h:'みかん', m:'귤', cat:'food'},
+  {k:'いちご', h:'いちご', m:'딸기', cat:'food'},
+  {k:'バナナ', h:'バナナ', m:'바나나', cat:'food'},
+  {k:'トマト', h:'トマト', m:'토마토', cat:'food'},
+  {k:'ラーメン', h:'ラーメン', m:'라면', cat:'food'},
+  {k:'寿司', h:'すし', m:'초밥', cat:'food'},
+  {k:'刺身', h:'さしみ', m:'회', cat:'food'},
+  {k:'天ぷら', h:'てんぷら', m:'튀김', cat:'food'},
+  {k:'ケーキ', h:'ケーキ', m:'케이크', cat:'food'},
+  {k:'チーズ', h:'チーズ', m:'치즈', cat:'food'},
+  {k:'バター', h:'バター', m:'버터', cat:'food'},
+  {k:'味噌', h:'みそ', m:'된장', cat:'food'},
+  {k:'醤油', h:'しょうゆ', m:'간장', cat:'food'},
+  {k:'朝ご飯', h:'あさごはん', m:'아침밥', cat:'food'},
+
+  // --- 🏢 장소·건물 ---
   {k:'学校', h:'がっこう', m:'학교', cat:'place'},
   {k:'家', h:'いえ', m:'집', cat:'place'},
   {k:'会社', h:'かいしゃ', m:'회사', cat:'place'},
@@ -443,48 +597,162 @@ const WORDS = [
   {k:'部屋', h:'へや', m:'방', cat:'place'},
   {k:'空港', h:'くうこう', m:'공항', cat:'place'},
   {k:'町', h:'まち', m:'동네,거리', cat:'place'},
+  {k:'市', h:'し', m:'시', cat:'place'},
+  {k:'国', h:'くに', m:'나라', cat:'place'},
+  {k:'郵便局', h:'ゆうびんきょく', m:'우체국', cat:'place'},
+  {k:'レストラン', h:'レストラン', m:'레스토랑', cat:'place'},
+  {k:'ホテル', h:'ホテル', m:'호텔', cat:'place'},
+  {k:'デパート', h:'デパート', m:'백화점', cat:'place'},
+  {k:'コンビニ', h:'コンビニ', m:'편의점', cat:'place'},
+  {k:'スーパー', h:'スーパー', m:'슈퍼마켓', cat:'place'},
+  {k:'大学', h:'だいがく', m:'대학', cat:'place'},
+  {k:'工場', h:'こうじょう', m:'공장', cat:'place'},
+  {k:'台所', h:'だいどころ', m:'부엌', cat:'place'},
+  {k:'トイレ', h:'トイレ', m:'화장실', cat:'place'},
+  {k:'お風呂', h:'おふろ', m:'욕실,목욕', cat:'place'},
+  {k:'庭', h:'にわ', m:'정원', cat:'place'},
 
-  // --- food ---
-  {k:'ご飯', h:'ごはん', m:'밥', cat:'food'},
-  {k:'水', h:'みず', m:'물', cat:'food'},
-  {k:'お茶', h:'おちゃ', m:'차', cat:'food'},
-  {k:'肉', h:'にく', m:'고기', cat:'food'},
-  {k:'魚', h:'さかな', m:'생선', cat:'food'},
-  {k:'野菜', h:'やさい', m:'야채', cat:'food'},
-  {k:'果物', h:'くだもの', m:'과일', cat:'food'},
-  {k:'牛乳', h:'ぎゅうにゅう', m:'우유', cat:'food'},
-  {k:'卵', h:'たまご', m:'계란', cat:'food'},
-  {k:'砂糖', h:'さとう', m:'설탕', cat:'food'},
-  {k:'塩', h:'しお', m:'소금', cat:'food'},
-  {k:'パン', h:'パン', m:'빵', cat:'food'},
-  {k:'お酒', h:'おさけ', m:'술', cat:'food'},
-  {k:'弁当', h:'べんとう', m:'도시락', cat:'food'},
+  // --- 🚆 교통 ---
+  {k:'電車', h:'でんしゃ', m:'전철', cat:'transport'},
+  {k:'地下鉄', h:'ちかてつ', m:'지하철', cat:'transport'},
+  {k:'飛行機', h:'ひこうき', m:'비행기', cat:'transport'},
+  {k:'自転車', h:'じてんしゃ', m:'자전거', cat:'transport'},
+  {k:'車', h:'くるま', m:'자동차', cat:'transport'},
+  {k:'バス', h:'バス', m:'버스', cat:'transport'},
+  {k:'タクシー', h:'タクシー', m:'택시', cat:'transport'},
+  {k:'船', h:'ふね', m:'배', cat:'transport'},
+  {k:'新幹線', h:'しんかんせん', m:'신칸센', cat:'transport'},
+  {k:'バイク', h:'バイク', m:'오토바이', cat:'transport'},
+  {k:'切符', h:'きっぷ', m:'표,티켓', cat:'transport'},
+  {k:'道', h:'みち', m:'길', cat:'transport'},
+  {k:'信号', h:'しんごう', m:'신호등', cat:'transport'},
+  {k:'駐車場', h:'ちゅうしゃじょう', m:'주차장', cat:'transport'},
 
-  // --- body ---
-  {k:'目', h:'め', m:'눈', cat:'body'},
-  {k:'耳', h:'みみ', m:'귀', cat:'body'},
-  {k:'口', h:'くち', m:'입', cat:'body'},
-  {k:'鼻', h:'はな', m:'코', cat:'body'},
-  {k:'手', h:'て', m:'손', cat:'body'},
-  {k:'足', h:'あし', m:'발,다리', cat:'body'},
-  {k:'頭', h:'あたま', m:'머리', cat:'body'},
-  {k:'顔', h:'かお', m:'얼굴', cat:'body'},
-  {k:'体', h:'からだ', m:'몸', cat:'body'},
-  {k:'歯', h:'は', m:'이,치아', cat:'body'},
+  // --- 🛍 생활·물건 ---
+  {k:'本', h:'ほん', m:'책', cat:'daily'},
+  {k:'新聞', h:'しんぶん', m:'신문', cat:'daily'},
+  {k:'雑誌', h:'ざっし', m:'잡지', cat:'daily'},
+  {k:'辞書', h:'じしょ', m:'사전', cat:'daily'},
+  {k:'鞄', h:'かばん', m:'가방', cat:'daily'},
+  {k:'財布', h:'さいふ', m:'지갑', cat:'daily'},
+  {k:'眼鏡', h:'めがね', m:'안경', cat:'daily'},
+  {k:'時計', h:'とけい', m:'시계', cat:'daily'},
+  {k:'傘', h:'かさ', m:'우산', cat:'daily'},
+  {k:'靴', h:'くつ', m:'신발', cat:'daily'},
+  {k:'服', h:'ふく', m:'옷', cat:'daily'},
+  {k:'帽子', h:'ぼうし', m:'모자', cat:'daily'},
+  {k:'椅子', h:'いす', m:'의자', cat:'daily'},
+  {k:'机', h:'つくえ', m:'책상', cat:'daily'},
+  {k:'電話', h:'でんわ', m:'전화', cat:'daily'},
+  {k:'鍵', h:'かぎ', m:'열쇠', cat:'daily'},
+  {k:'箱', h:'はこ', m:'상자', cat:'daily'},
+  {k:'紙', h:'かみ', m:'종이', cat:'daily'},
+  {k:'写真', h:'しゃしん', m:'사진', cat:'daily'},
+  {k:'手紙', h:'てがみ', m:'편지', cat:'daily'},
+  {k:'鉛筆', h:'えんぴつ', m:'연필', cat:'daily'},
+  {k:'ノート', h:'ノート', m:'노트', cat:'daily'},
+  {k:'テレビ', h:'テレビ', m:'텔레비전', cat:'daily'},
+  {k:'カメラ', h:'カメラ', m:'카메라', cat:'daily'},
+  {k:'石鹸', h:'せっけん', m:'비누', cat:'daily'},
+  {k:'タオル', h:'タオル', m:'수건', cat:'daily'},
+  {k:'布団', h:'ふとん', m:'이불', cat:'daily'},
+  {k:'窓', h:'まど', m:'창문', cat:'daily'},
+  {k:'ドア', h:'ドア', m:'문', cat:'daily'},
+  {k:'電気', h:'でんき', m:'전기,불(등)', cat:'daily'},
 
-  // --- greetings / basics ---
-  {k:'おはよう', h:'おはよう', m:'좋은 아침', cat:'greet'},
-  {k:'こんにちは', h:'こんにちは', m:'안녕하세요', cat:'greet'},
-  {k:'こんばんは', h:'こんばんは', m:'안녕하세요(저녁)', cat:'greet'},
-  {k:'さようなら', h:'さようなら', m:'안녕히 가세요', cat:'greet'},
-  {k:'ありがとう', h:'ありがとう', m:'고맙다', cat:'greet'},
-  {k:'すみません', h:'すみません', m:'죄송하다,실례하다', cat:'greet'},
-  {k:'はい', h:'はい', m:'네,예', cat:'greet'},
-  {k:'いいえ', h:'いいえ', m:'아니요', cat:'greet'},
-  {k:'大丈夫', h:'だいじょうぶ', m:'괜찮다', cat:'greet'},
-  {k:'お願い', h:'おねがい', m:'부탁', cat:'greet'},
-  {k:'元気', h:'げんき', m:'건강,잘 지냄', cat:'greet'},
-  {k:'名前', h:'なまえ', m:'이름', cat:'greet'}
+  // --- 📖 학교·공부 ---
+  {k:'勉強', h:'べんきょう', m:'공부', cat:'school'},
+  {k:'宿題', h:'しゅくだい', m:'숙제', cat:'school'},
+  {k:'試験', h:'しけん', m:'시험', cat:'school'},
+  {k:'授業', h:'じゅぎょう', m:'수업', cat:'school'},
+  {k:'質問', h:'しつもん', m:'질문', cat:'school'},
+  {k:'答え', h:'こたえ', m:'답', cat:'school'},
+  {k:'問題', h:'もんだい', m:'문제', cat:'school'},
+  {k:'学生', h:'がくせい', m:'학생', cat:'school'},
+  {k:'先生', h:'せんせい', m:'선생님', cat:'school'},
+  {k:'大学生', h:'だいがくせい', m:'대학생', cat:'school'},
+  {k:'留学生', h:'りゅうがくせい', m:'유학생', cat:'school'},
+  {k:'教科書', h:'きょうかしょ', m:'교과서', cat:'school'},
+  {k:'漢字', h:'かんじ', m:'한자', cat:'school'},
+  {k:'言葉', h:'ことば', m:'말,단어', cat:'school'},
+  {k:'日本語', h:'にほんご', m:'일본어', cat:'school'},
+  {k:'英語', h:'えいご', m:'영어', cat:'school'},
+  {k:'韓国語', h:'かんこくご', m:'한국어', cat:'school'},
+  {k:'文化', h:'ぶんか', m:'문화', cat:'school'},
+  {k:'歴史', h:'れきし', m:'역사', cat:'school'},
+  {k:'練習', h:'れんしゅう', m:'연습', cat:'school'},
+
+  // --- 💼 직업 ---
+  {k:'仕事', h:'しごと', m:'일,직업', cat:'job'},
+  {k:'医者', h:'いしゃ', m:'의사', cat:'job'},
+  {k:'看護師', h:'かんごし', m:'간호사', cat:'job'},
+  {k:'警察', h:'けいさつ', m:'경찰', cat:'job'},
+  {k:'店員', h:'てんいん', m:'점원', cat:'job'},
+  {k:'料理人', h:'りょうりにん', m:'요리사', cat:'job'},
+  {k:'運転手', h:'うんてんしゅ', m:'운전사', cat:'job'},
+  {k:'会社員', h:'かいしゃいん', m:'회사원', cat:'job'},
+  {k:'歌手', h:'かしゅ', m:'가수', cat:'job'},
+  {k:'俳優', h:'はいゆう', m:'배우', cat:'job'},
+  {k:'作家', h:'さっか', m:'작가', cat:'job'},
+  {k:'記者', h:'きしゃ', m:'기자', cat:'job'},
+  {k:'選手', h:'せんしゅ', m:'선수', cat:'job'},
+  {k:'社長', h:'しゃちょう', m:'사장', cat:'job'},
+
+  // --- 🌸 자연·계절 ---
+  {k:'空', h:'そら', m:'하늘', cat:'nature'},
+  {k:'海', h:'うみ', m:'바다', cat:'nature'},
+  {k:'山', h:'やま', m:'산', cat:'nature'},
+  {k:'川', h:'かわ', m:'강', cat:'nature'},
+  {k:'木', h:'き', m:'나무', cat:'nature'},
+  {k:'花', h:'はな', m:'꽃', cat:'nature'},
+  {k:'草', h:'くさ', m:'풀', cat:'nature'},
+  {k:'石', h:'いし', m:'돌', cat:'nature'},
+  {k:'月', h:'つき', m:'달', cat:'nature'},
+  {k:'星', h:'ほし', m:'별', cat:'nature'},
+  {k:'太陽', h:'たいよう', m:'태양', cat:'nature'},
+  {k:'天気', h:'てんき', m:'날씨', cat:'nature'},
+  {k:'雨', h:'あめ', m:'비', cat:'nature'},
+  {k:'雪', h:'ゆき', m:'눈(눈송이)', cat:'nature'},
+  {k:'風', h:'かぜ', m:'바람', cat:'nature'},
+  {k:'雲', h:'くも', m:'구름', cat:'nature'},
+  {k:'森', h:'もり', m:'숲', cat:'nature'},
+  {k:'火', h:'ひ', m:'불', cat:'nature'},
+  {k:'土', h:'つち', m:'흙', cat:'nature'},
+  {k:'春', h:'はる', m:'봄', cat:'nature'},
+  {k:'夏', h:'なつ', m:'여름', cat:'nature'},
+  {k:'秋', h:'あき', m:'가을', cat:'nature'},
+  {k:'冬', h:'ふゆ', m:'겨울', cat:'nature'},
+
+  // --- 🐶 동물 ---
+  {k:'犬', h:'いぬ', m:'개', cat:'animal'},
+  {k:'猫', h:'ねこ', m:'고양이', cat:'animal'},
+  {k:'鳥', h:'とり', m:'새', cat:'animal'},
+  {k:'馬', h:'うま', m:'말', cat:'animal'},
+  {k:'牛', h:'うし', m:'소', cat:'animal'},
+  {k:'豚', h:'ぶた', m:'돼지', cat:'animal'},
+  {k:'鶏', h:'にわとり', m:'닭', cat:'animal'},
+  {k:'羊', h:'ひつじ', m:'양', cat:'animal'},
+  {k:'虎', h:'とら', m:'호랑이', cat:'animal'},
+  {k:'熊', h:'くま', m:'곰', cat:'animal'},
+  {k:'猿', h:'さる', m:'원숭이', cat:'animal'},
+  {k:'象', h:'ぞう', m:'코끼리', cat:'animal'},
+  {k:'兎', h:'うさぎ', m:'토끼', cat:'animal'},
+  {k:'蛇', h:'へび', m:'뱀', cat:'animal'},
+  {k:'虫', h:'むし', m:'벌레', cat:'animal'},
+
+  // --- 🎨 색깔 ---
+  {k:'赤', h:'あか', m:'빨강', cat:'color'},
+  {k:'青', h:'あお', m:'파랑', cat:'color'},
+  {k:'黄色', h:'きいろ', m:'노랑', cat:'color'},
+  {k:'緑', h:'みどり', m:'초록', cat:'color'},
+  {k:'白', h:'しろ', m:'하양', cat:'color'},
+  {k:'黒', h:'くろ', m:'검정', cat:'color'},
+  {k:'紫', h:'むらさき', m:'보라', cat:'color'},
+  {k:'茶色', h:'ちゃいろ', m:'갈색', cat:'color'},
+  {k:'桃色', h:'ももいろ', m:'분홍', cat:'color'},
+  {k:'灰色', h:'はいいろ', m:'회색', cat:'color'},
+  {k:'金色', h:'きんいろ', m:'금색', cat:'color'},
+  {k:'銀色', h:'ぎんいろ', m:'은색', cat:'color'}
 ];
 
 // ===== State =====
@@ -496,15 +764,15 @@ let state = {
   activeWords: WORDS,
   category: 'all'
 };
-const BEST_KEY = 'jp_game_best_v2';
+const BEST_KEY = 'jp_game_best_v3';
 
 // ===== Helpers =====
 function rand(n) { return Math.floor(Math.random() * n); }
 function pickWord() {
   const pool = state.activeWords;
   if (pool.length === 0) return null;
-  let idx;
   if (pool.length === 1) return pool[0];
+  let idx;
   do { idx = rand(pool.length); } while (idx === state.lastWordIdx);
   state.lastWordIdx = idx;
   return pool[idx];
@@ -517,7 +785,6 @@ function pickDistractors(field, correctValue, n=3) {
     const w = pool[rand(pool.length)];
     if (!used.has(w[field])) { used.add(w[field]); picked.push(w[field]); }
   }
-  // top up from full dictionary if category too small
   if (picked.length < n) {
     const backup = WORDS.filter(w => w[field] !== correctValue && !used.has(w[field]));
     while (picked.length < n && backup.length) {
@@ -536,7 +803,6 @@ function shuffle(arr) {
 }
 function hasKanji(w) { return w.k !== w.h; }
 
-// ===== Screens =====
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -556,6 +822,7 @@ function renderCategoryPicker() {
       state.category = btn.dataset.cat;
       localStorage.setItem('jp_game_cat', state.category);
       renderCategoryPicker();
+      refreshBestRecord();
     });
   });
 }
@@ -579,7 +846,7 @@ function startGame() {
     category: cat
   };
   const label = CATEGORIES.find(c => c.id === cat)?.label || '전체';
-  document.getElementById('game-title').textContent = `日本語 · ${label}`;
+  document.getElementById('game-title').textContent = label;
   updateHUD();
   showScreen('game-screen');
   nextQuestion();
@@ -599,10 +866,8 @@ function nextQuestion() {
   const word = pickWord();
   if (!word) { endGame(); return; }
 
-  // weighted: meaning 45%, reading 40%, typing 15%
   const r = Math.random();
   let type = r < 0.45 ? 'meaning' : (r < 0.85 ? 'reading' : 'typing');
-  // if word has no kanji reading (k === h), switch reading -> meaning
   if (type === 'reading' && !hasKanji(word)) type = 'meaning';
 
   state.current = word;
@@ -635,7 +900,7 @@ function nextQuestion() {
     qWord.textContent = hasKanji(word) ? `${word.k}（${word.h}）` : word.h;
     const choices = shuffle([word.m, ...pickDistractors('m', word.m, 3)]);
     answerArea.innerHTML = '<div class="choices">' +
-      choices.map(c => `<button class="choice" onclick="submitChoice(this, ${JSON.stringify(c)}, ${JSON.stringify(word.m)})">${c}</button>`).join('') +
+      choices.map(c => `<button class="choice" onclick='submitChoice(this, ${JSON.stringify(c)}, ${JSON.stringify(word.m)})'>${c}</button>`).join('') +
       '</div>';
   } else {
     qType.textContent = '🈵 한자 읽기 (+10)';
@@ -643,14 +908,13 @@ function nextQuestion() {
     qWord.textContent = word.k;
     const choices = shuffle([word.h, ...pickDistractors('h', word.h, 3)]);
     answerArea.innerHTML = '<div class="choices">' +
-      choices.map(c => `<button class="choice" onclick="submitChoice(this, ${JSON.stringify(c)}, ${JSON.stringify(word.h)})">${c}</button>`).join('') +
+      choices.map(c => `<button class="choice" onclick='submitChoice(this, ${JSON.stringify(c)}, ${JSON.stringify(word.h)})'>${c}</button>`).join('') +
       '</div>';
   }
 }
 
-function normalizeKo(s) {
-  return s.trim().toLowerCase().replace(/[,\s.·・、,]/g, '');
-}
+function normalizeKo(s) { return s.trim().toLowerCase().replace(/[,\s.·・、,()（）]/g, ''); }
+
 function submitTyping() {
   if (state.locked) return;
   const input = document.getElementById('ans-input');
@@ -694,16 +958,16 @@ function handleAnswer(correct, given, answer, basePoints) {
     card.classList.add('correct');
     fb.className = 'feedback correct show';
     const w = state.current;
-    const wordLabel = hasKanji(w) ? `${w.k}（${w.h}）` : w.h;
-    fb.innerHTML = `✅ 정답! <b>+${gained}점</b> — ${wordLabel} = ${w.m}${bonusText}`;
+    const label = hasKanji(w) ? `${w.k}（${w.h}）` : w.h;
+    fb.innerHTML = `✅ 정답! <b>+${gained}점</b> — ${label} = ${w.m}${bonusText}`;
   } else {
     state.combo = 0;
     state.lives--;
     card.classList.add('wrong', 'shake');
     fb.className = 'feedback wrong show';
     const w = state.current;
-    const wordLabel = hasKanji(w) ? `${w.k}（${w.h}）` : w.h;
-    fb.innerHTML = `❌ 오답! 정답: <b>${answer}</b> — ${wordLabel} = ${w.m}`;
+    const label = hasKanji(w) ? `${w.k}（${w.h}）` : w.h;
+    fb.innerHTML = `❌ 오답! 정답: <b>${answer}</b> — ${label} = ${w.m}`;
   }
   updateHUD();
 
@@ -742,14 +1006,11 @@ function refreshBestRecord() {
 
 // ===== Init =====
 (function init() {
+  document.getElementById('total-count').textContent = WORDS.length;
   const savedCat = localStorage.getItem('jp_game_cat');
   if (savedCat && CATEGORIES.some(c => c.id === savedCat)) state.category = savedCat;
   renderCategoryPicker();
   refreshBestRecord();
-  // Re-render record whenever category changes
-  document.getElementById('category-grid').addEventListener('click', () => {
-    setTimeout(refreshBestRecord, 0);
-  });
 })();
 </script>
 </body>
