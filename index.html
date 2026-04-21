@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語チャレンジ - 일본어 단어 게임</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background: #1a1a1a;
+    color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(230, 57, 70, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(230, 57, 70, 0.05) 0%, transparent 50%);
+  }
+  .game {
+    width: 100%;
+    max-width: 560px;
+    background: #242424;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #333;
+  }
+  .title {
+    font-size: 1.2rem;
+    color: #e63946;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .stats { display: flex; gap: 16px; font-size: 0.9rem; }
+  .stat { display: flex; flex-direction: column; align-items: center; }
+  .stat .label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .stat .value { font-size: 1.1rem; font-weight: 700; }
+  .lives { font-size: 1.3rem; letter-spacing: 2px; }
+  .combo.active .value { color: #ffb703; }
+  .question-type {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #e63946;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  .question-card {
+    text-align: center;
+    padding: 32px 20px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #2a2a2a;
+    transition: all 0.3s;
+  }
+  .question-card.correct { border-color: #2dd4bf; background: rgba(45, 212, 191, 0.08); }
+  .question-card.wrong { border-color: #e63946; background: rgba(230, 57, 70, 0.08); }
+  .question-word {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .question-hint {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .input-area {
+    display: flex;
+    gap: 8px;
+  }
+  .input-area input {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 1.1rem;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    font-family: inherit;
+  }
+  .input-area input:focus { border-color: #e63946; }
+  .input-area button {
+    padding: 14px 24px;
+    background: #e63946;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+  }
+  .input-area button:hover { background: #c1121f; }
+  .input-area button:active { transform: scale(0.97); }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice {
+    padding: 16px;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .choice:hover:not(:disabled) { border-color: #e63946; background: #2a2a2a; }
+  .choice:disabled { cursor: not-allowed; opacity: 0.6; }
+  .choice.correct { border-color: #2dd4bf; background: rgba(45, 212, 191, 0.15); color: #2dd4bf; }
+  .choice.wrong { border-color: #e63946; background: rgba(230, 57, 70, 0.15); color: #e63946; }
+  .feedback {
+    min-height: 48px;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: rgba(45, 212, 191, 0.1); color: #2dd4bf; }
+  .feedback.wrong { background: rgba(230, 57, 70, 0.1); color: #ff6b7a; }
+  .feedback b { color: #fff; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .start-screen, .end-screen { text-align: center; padding: 20px 0; }
+  .big-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #e63946, #ff6b7a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: #888; margin-bottom: 28px; font-size: 0.95rem; }
+  .rules {
+    text-align: left;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: #ccc;
+  }
+  .rules li { margin-left: 18px; }
+  .rules b { color: #e63946; }
+  .primary-btn {
+    padding: 16px 48px;
+    background: #e63946;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .primary-btn:hover { background: #c1121f; transform: translateY(-2px); }
+  .final-score {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #e63946;
+    margin: 8px 0;
+  }
+  .record { color: #ffb703; font-size: 0.95rem; margin-bottom: 20px; }
+  .record .new { font-weight: 700; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.5; } }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .shake { animation: shake 0.3s; }
+</style>
+</head>
+<body>
+<div class="game">
+
+  <!-- START -->
+  <div id="start-screen" class="screen active start-screen">
+    <div class="big-title">日本語チャレンジ</div>
+    <div class="subtitle">JLPT N4~N3 일본어 단어 게임</div>
+    <div class="rules">
+      <div><b>❤️ 라이프 3개</b>로 시작. 0 되면 게임 오버.</div>
+      <div><b>3가지 문제</b>가 랜덤으로 출제됩니다:</div>
+      <ul>
+        <li><b>타이핑</b>: 히라가나를 로마자로 입력 (+15점)</li>
+        <li><b>뜻 맞추기</b>: 단어의 한국어 뜻 고르기 (+10점)</li>
+        <li><b>한자 읽기</b>: 한자의 히라가나 읽기 고르기 (+10점)</li>
+      </ul>
+      <div><b>🔥 5 콤보</b>마다 +20점 보너스!</div>
+    </div>
+    <button class="primary-btn" onclick="startGame()">게임 시작</button>
+    <div id="best-record" class="record" style="margin-top:20px;"></div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="screen">
+    <div class="header">
+      <div class="title">日本語</div>
+      <div class="stats">
+        <div class="stat"><div class="label">라이프</div><div class="value lives" id="lives">❤️❤️❤️</div></div>
+        <div class="stat"><div class="label">점수</div><div class="value" id="score">0</div></div>
+        <div class="stat combo" id="combo-stat"><div class="label">콤보</div><div class="value" id="combo">0</div></div>
+      </div>
+    </div>
+
+    <div id="q-type" class="question-type">문제</div>
+    <div id="question-card" class="question-card">
+      <div id="q-hint" class="question-hint"></div>
+      <div id="q-word" class="question-word"></div>
+    </div>
+
+    <div id="answer-area"></div>
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <!-- END -->
+  <div id="end-screen" class="screen end-screen">
+    <div class="big-title">게임 오버</div>
+    <div class="subtitle">お疲れ様でした!</div>
+    <div>최종 점수</div>
+    <div id="final-score" class="final-score">0</div>
+    <div id="final-record" class="record"></div>
+    <div>맞힌 문제: <b id="final-correct">0</b> / <span id="final-total">0</span></div>
+    <div style="margin-top: 28px;">
+      <button class="primary-btn" onclick="startGame()">다시 도전</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== Word Data (JLPT N4~N3) =====
+const WORDS = [
+  {k:'食べる', h:'たべる', m:'먹다'},
+  {k:'飲む', h:'のむ', m:'마시다'},
+  {k:'見る', h:'みる', m:'보다'},
+  {k:'聞く', h:'きく', m:'듣다'},
+  {k:'書く', h:'かく', m:'쓰다'},
+  {k:'読む', h:'よむ', m:'읽다'},
+  {k:'話す', h:'はなす', m:'말하다'},
+  {k:'買う', h:'かう', m:'사다'},
+  {k:'売る', h:'うる', m:'팔다'},
+  {k:'作る', h:'つくる', m:'만들다'},
+  {k:'歩く', h:'あるく', m:'걷다'},
+  {k:'走る', h:'はしる', m:'달리다'},
+  {k:'泳ぐ', h:'およぐ', m:'헤엄치다'},
+  {k:'教える', h:'おしえる', m:'가르치다'},
+  {k:'覚える', h:'おぼえる', m:'기억하다'},
+  {k:'忘れる', h:'わすれる', m:'잊다'},
+  {k:'始める', h:'はじめる', m:'시작하다'},
+  {k:'終わる', h:'おわる', m:'끝나다'},
+  {k:'帰る', h:'かえる', m:'돌아가다'},
+  {k:'学校', h:'がっこう', m:'학교'},
+  {k:'会社', h:'かいしゃ', m:'회사'},
+  {k:'先生', h:'せんせい', m:'선생님'},
+  {k:'学生', h:'がくせい', m:'학생'},
+  {k:'友達', h:'ともだち', m:'친구'},
+  {k:'家族', h:'かぞく', m:'가족'},
+  {k:'時間', h:'じかん', m:'시간'},
+  {k:'天気', h:'てんき', m:'날씨'},
+  {k:'映画', h:'えいが', m:'영화'},
+  {k:'音楽', h:'おんがく', m:'음악'},
+  {k:'勉強', h:'べんきょう', m:'공부'},
+  {k:'質問', h:'しつもん', m:'질문'},
+  {k:'問題', h:'もんだい', m:'문제'},
+  {k:'新聞', h:'しんぶん', m:'신문'},
+  {k:'雑誌', h:'ざっし', m:'잡지'},
+  {k:'電車', h:'でんしゃ', m:'전철'},
+  {k:'地下鉄', h:'ちかてつ', m:'지하철'},
+  {k:'飛行機', h:'ひこうき', m:'비행기'},
+  {k:'自転車', h:'じてんしゃ', m:'자전거'},
+  {k:'病院', h:'びょういん', m:'병원'},
+  {k:'銀行', h:'ぎんこう', m:'은행'},
+  {k:'図書館', h:'としょかん', m:'도서관'},
+  {k:'郵便局', h:'ゆうびんきょく', m:'우체국'},
+  {k:'旅行', h:'りょこう', m:'여행'},
+  {k:'料理', h:'りょうり', m:'요리'},
+  {k:'野菜', h:'やさい', m:'야채'},
+  {k:'果物', h:'くだもの', m:'과일'},
+  {k:'魚', h:'さかな', m:'생선'},
+  {k:'難しい', h:'むずかしい', m:'어렵다'},
+  {k:'優しい', h:'やさしい', m:'상냥하다'},
+  {k:'楽しい', h:'たのしい', m:'즐겁다'},
+  {k:'忙しい', h:'いそがしい', m:'바쁘다'},
+  {k:'静か', h:'しずか', m:'조용함'},
+  {k:'有名', h:'ゆうめい', m:'유명함'},
+  {k:'親切', h:'しんせつ', m:'친절함'},
+  {k:'便利', h:'べんり', m:'편리함'},
+  {k:'大切', h:'たいせつ', m:'소중함'},
+  {k:'特別', h:'とくべつ', m:'특별함'},
+  {k:'約束', h:'やくそく', m:'약속'},
+  {k:'計画', h:'けいかく', m:'계획'},
+  {k:'経験', h:'けいけん', m:'경험'},
+  {k:'意味', h:'いみ', m:'의미'},
+  {k:'気持ち', h:'きもち', m:'기분'},
+  {k:'元気', h:'げんき', m:'건강함'},
+  {k:'練習', h:'れんしゅう', m:'연습'},
+  {k:'説明', h:'せつめい', m:'설명'},
+  {k:'準備', h:'じゅんび', m:'준비'},
+  {k:'運動', h:'うんどう', m:'운동'},
+  {k:'世界', h:'せかい', m:'세계'},
+  {k:'文化', h:'ぶんか', m:'문화'},
+  {k:'歴史', h:'れきし', m:'역사'},
+  {k:'経済', h:'けいざい', m:'경제'},
+  {k:'政治', h:'せいじ', m:'정치'},
+  {k:'空港', h:'くうこう', m:'공항'},
+  {k:'駅', h:'えき', m:'역'},
+  {k:'切符', h:'きっぷ', m:'표, 티켓'},
+  {k:'財布', h:'さいふ', m:'지갑'},
+  {k:'鞄', h:'かばん', m:'가방'},
+  {k:'眼鏡', h:'めがね', m:'안경'},
+  {k:'時計', h:'とけい', m:'시계'},
+  {k:'手紙', h:'てがみ', m:'편지'},
+  {k:'写真', h:'しゃしん', m:'사진'},
+  {k:'危険', h:'きけん', m:'위험'},
+];
+// ===== Hiragana to Romaji =====
+const KANA = {
+  'あ':'a','い':'i','う':'u','え':'e','お':'o',
+  'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+  'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+  'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+  'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+  'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+  'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+  'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+  'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+  'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+  'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+  'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+  'や':'ya','ゆ':'yu','よ':'yo',
+  'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+  'わ':'wa','を':'wo','ん':'n'
+};
+const YOUON = {
+  'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+  'しゃ':'sha','しゅ':'shu','しょ':'sho',
+  'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+  'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+  'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+  'みゃ':'mya','みゅ':'myu','みょ':'myo',
+  'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
+  'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+  'じゃ':'ja','じゅ':'ju','じょ':'jo',
+  'びゃ':'bya','びゅ':'byu','びょ':'byo',
+  'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo'
+};
+
+function toRomaji(kana) {
+  let out = '';
+  for (let i = 0; i < kana.length; i++) {
+    const c = kana[i], next = kana[i+1];
+    if (c === 'っ') {
+      const pair = next + (kana[i+2] || '');
+      const r = YOUON[pair] || KANA[next] || '';
+      if (r) out += r[0];
+      continue;
+    }
+    if (next && YOUON[c+next]) { out += YOUON[c+next]; i++; continue; }
+    out += KANA[c] || c;
+  }
+  return out;
+}
+
+// Accept alternative romaji spellings
+function acceptableRomaji(kana) {
+  const primary = toRomaji(kana);
+  const alts = new Set([primary]);
+  // common alternatives
+  const alt = primary
+    .replace(/shi/g, 'si')
+    .replace(/chi/g, 'ti')
+    .replace(/tsu/g, 'tu')
+    .replace(/fu/g, 'hu')
+    .replace(/ji/g, 'zi');
+  alts.add(alt);
+  // also: accept both "shi" & "si" mixed — generate loose pattern
+  // just include primary and all-alt forms
+  alts.add(primary.replace(/shi/g, 'si'));
+  alts.add(primary.replace(/chi/g, 'ti'));
+  alts.add(primary.replace(/tsu/g, 'tu'));
+  alts.add(primary.replace(/fu/g, 'hu'));
+  return alts;
+}
+
+// ===== State =====
+let state = {
+  lives: 3,
+  score: 0,
+  combo: 0,
+  current: null,
+  currentType: null,
+  lastWordIdx: -1,
+  correct: 0,
+  total: 0,
+  locked: false
+};
+const BEST_KEY = 'jp_game_best';
+
+// ===== Helpers =====
+function rand(n) { return Math.floor(Math.random() * n); }
+function pickWord() {
+  let idx;
+  do { idx = rand(WORDS.length); } while (idx === state.lastWordIdx);
+  state.lastWordIdx = idx;
+  return WORDS[idx];
+}
+function pickDistractors(field, correctValue, n=3) {
+  const pool = WORDS.filter(w => w[field] !== correctValue);
+  const picked = [];
+  const used = new Set();
+  while (picked.length < n && picked.length < pool.length) {
+    const w = pool[rand(pool.length)];
+    if (!used.has(w[field])) { used.add(w[field]); picked.push(w[field]); }
+  }
+  return picked;
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = rand(i+1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ===== Screens =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Game Flow =====
+function startGame() {
+  state = { lives: 3, score: 0, combo: 0, current: null, currentType: null, lastWordIdx: -1, correct: 0, total: 0, locked: false };
+  updateHUD();
+  showScreen('game-screen');
+  nextQuestion();
+}
+
+function updateHUD() {
+  document.getElementById('lives').textContent = '❤️'.repeat(state.lives) + '🖤'.repeat(3 - state.lives);
+  document.getElementById('score').textContent = state.score;
+  document.getElementById('combo').textContent = state.combo;
+  const cs = document.getElementById('combo-stat');
+  if (state.combo >= 3) cs.classList.add('active'); else cs.classList.remove('active');
+}
+
+function nextQuestion() {
+  state.locked = false;
+  const word = pickWord();
+  const types = ['typing', 'meaning', 'reading'];
+  const type = types[rand(3)];
+  state.current = word;
+  state.currentType = type;
+
+  const card = document.getElementById('question-card');
+  card.classList.remove('correct', 'wrong', 'shake');
+  document.getElementById('feedback').classList.remove('show');
+
+  const qType = document.getElementById('q-type');
+  const qHint = document.getElementById('q-hint');
+  const qWord = document.getElementById('q-word');
+  const answerArea = document.getElementById('answer-area');
+
+  if (type === 'typing') {
+    qType.textContent = '⌨️ 타이핑 (+15)';
+    qHint.textContent = '히라가나를 로마자로 입력하세요';
+    qWord.textContent = word.h;
+    answerArea.innerHTML = `
+      <div class="input-area">
+        <input id="ans-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="romaji...">
+        <button onclick="submitTyping()">확인</button>
+      </div>`;
+    const inp = document.getElementById('ans-input');
+    inp.focus();
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitTyping(); });
+  } else if (type === 'meaning') {
+    qType.textContent = '💭 뜻 맞추기 (+10)';
+    qHint.textContent = '이 단어의 뜻은?';
+    qWord.textContent = `${word.k}（${word.h}）`;
+    const choices = shuffle([word.m, ...pickDistractors('m', word.m, 3)]);
+    answerArea.innerHTML = '<div class="choices">' +
+      choices.map(c => `<button class="choice" onclick="submitChoice(this, '${c.replace(/'/g, "\\'")}', '${word.m.replace(/'/g, "\\'")}')">${c}</button>`).join('') +
+      '</div>';
+  } else {
+    qType.textContent = '🈵 한자 읽기 (+10)';
+    qHint.textContent = '이 한자의 읽기는?';
+    qWord.textContent = word.k;
+    const choices = shuffle([word.h, ...pickDistractors('h', word.h, 3)]);
+    answerArea.innerHTML = '<div class="choices">' +
+      choices.map(c => `<button class="choice" onclick="submitChoice(this, '${c}', '${word.h}')">${c}</button>`).join('') +
+      '</div>';
+  }
+}
+
+function submitTyping() {
+  if (state.locked) return;
+  const input = document.getElementById('ans-input');
+  const val = input.value.trim().toLowerCase();
+  if (!val) return;
+  const accept = acceptableRomaji(state.current.h);
+  const correct = accept.has(val);
+  handleAnswer(correct, val, toRomaji(state.current.h), 15);
+}
+
+function submitChoice(btn, picked, correctAns) {
+  if (state.locked) return;
+  const correct = picked === correctAns;
+  document.querySelectorAll('.choice').forEach(c => {
+    c.disabled = true;
+    if (c.textContent === correctAns) c.classList.add('correct');
+    else if (c === btn && !correct) c.classList.add('wrong');
+  });
+  handleAnswer(correct, picked, correctAns, 10);
+}
+
+function handleAnswer(correct, given, answer, basePoints) {
+  state.locked = true;
+  state.total++;
+  const card = document.getElementById('question-card');
+  const fb = document.getElementById('feedback');
+
+  if (correct) {
+    state.correct++;
+    state.combo++;
+    let gained = basePoints;
+    let bonusText = '';
+    if (state.combo > 0 && state.combo % 5 === 0) {
+      gained += 20;
+      bonusText = ` <b>🔥 ${state.combo} 콤보 보너스 +20!</b>`;
+    }
+    state.score += gained;
+    card.classList.add('correct');
+    fb.className = 'feedback correct show';
+    const w = state.current;
+    fb.innerHTML = `✅ 정답! <b>+${gained}점</b> — ${w.k}（${w.h}）= ${w.m}${bonusText}`;
+  } else {
+    state.combo = 0;
+    state.lives--;
+    card.classList.add('wrong', 'shake');
+    fb.className = 'feedback wrong show';
+    const w = state.current;
+    fb.innerHTML = `❌ 오답! 정답: <b>${answer}</b> — ${w.k}（${w.h}）= ${w.m}`;
+  }
+  updateHUD();
+
+  setTimeout(() => {
+    if (state.lives <= 0) endGame();
+    else nextQuestion();
+  }, correct ? 1100 : 1800);
+}
+
+function endGame() {
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('final-correct').textContent = state.correct;
+  document.getElementById('final-total').textContent = state.total;
+  const best = parseInt(localStorage.getItem(BEST_KEY) || '0');
+  const rec = document.getElementById('final-record');
+  if (state.score > best) {
+    localStorage.setItem(BEST_KEY, state.score);
+    rec.innerHTML = `🏆 <span class="new">신기록 달성!</span> (이전: ${best}점)`;
+  } else {
+    rec.innerHTML = `🏆 최고 기록: ${best}점`;
+  }
+  showScreen('end-screen');
+}
+
+// ===== Init =====
+(function init() {
+  const best = parseInt(localStorage.getItem(BEST_KEY) || '0');
+  const el = document.getElementById('best-record');
+  if (best > 0) el.innerHTML = `🏆 최고 기록: <b>${best}점</b>`;
+})();
+</script>
+</body>
+</html>
