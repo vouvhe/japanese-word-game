@@ -209,14 +209,14 @@
     <div class="big-title">日本語チャレンジ</div>
     <div class="subtitle">JLPT N4~N3 일본어 단어 게임</div>
     <div class="rules">
-      <div><b>❤️ 라이프 3개</b>로 시작. 0 되면 게임 오버.</div>
+      <div><b>❤️ 라이프 5개</b>로 시작. 0 되면 게임 오버.</div>
       <div><b>3가지 문제</b>가 랜덤으로 출제됩니다:</div>
       <ul>
         <li><b>뜻 입력</b>: 단어의 한국어 뜻을 직접 타이핑 (+15점)</li>
         <li><b>뜻 맞추기</b>: 단어의 한국어 뜻 고르기 (+10점)</li>
         <li><b>한자 읽기</b>: 한자의 히라가나 읽기 고르기 (+10점)</li>
       </ul>
-      <div><b>🔥 5 콤보</b>마다 +20점 보너스!</div>
+      <div><b>🔥 3 콤보</b>마다 +20점 보너스!</div>
     </div>
     <button class="primary-btn" onclick="startGame()">게임 시작</button>
     <div id="best-record" class="record" style="margin-top:20px;"></div>
@@ -461,14 +461,14 @@ function showScreen(id) {
 
 // ===== Game Flow =====
 function startGame() {
-  state = { lives: 3, score: 0, combo: 0, current: null, currentType: null, lastWordIdx: -1, correct: 0, total: 0, locked: false };
+  state = { lives: 5, score: 0, combo: 0, current: null, currentType: null, lastWordIdx: -1, correct: 0, total: 0, locked: false };
   updateHUD();
   showScreen('game-screen');
   nextQuestion();
 }
 
 function updateHUD() {
-  document.getElementById('lives').textContent = '❤️'.repeat(state.lives) + '🖤'.repeat(3 - state.lives);
+  document.getElementById('lives').textContent = '❤️'.repeat(state.lives) + '🖤'.repeat(Math.max(0, 5 - state.lives));
   document.getElementById('score').textContent = state.score;
   document.getElementById('combo').textContent = state.combo;
   const cs = document.getElementById('combo-stat');
@@ -478,8 +478,9 @@ function updateHUD() {
 function nextQuestion() {
   state.locked = false;
   const word = pickWord();
-  const types = ['typing', 'meaning', 'reading'];
-  const type = types[rand(3)];
+  // weighted: meaning 45%, reading 40%, typing 15%
+  const r = Math.random();
+  const type = r < 0.45 ? 'meaning' : (r < 0.85 ? 'reading' : 'typing');
   state.current = word;
   state.currentType = type;
 
@@ -532,9 +533,12 @@ function submitTyping() {
   const val = input.value;
   if (!val.trim()) return;
   const user = normalizeKo(val);
-  // accept any comma-separated alternative in the meaning
+  // accept any comma-separated alternative in the meaning,
+  // with partial match (user input is substring of answer, min 2 chars)
   const answers = state.current.m.split(/[,、]/).map(normalizeKo);
-  const correct = answers.includes(user);
+  const correct = answers.some(a =>
+    a === user || (user.length >= 2 && a.includes(user))
+  );
   handleAnswer(correct, val.trim(), state.current.m, 15);
 }
 
@@ -560,7 +564,7 @@ function handleAnswer(correct, given, answer, basePoints) {
     state.combo++;
     let gained = basePoints;
     let bonusText = '';
-    if (state.combo > 0 && state.combo % 5 === 0) {
+    if (state.combo > 0 && state.combo % 3 === 0) {
       gained += 20;
       bonusText = ` <b>🔥 ${state.combo} 콤보 보너스 +20!</b>`;
     }
